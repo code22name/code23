@@ -312,17 +312,20 @@ class vk(gr.top_block, Qt.QWidget):
         self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.pyqwidget(), Qt.QWidget)
         self.top_grid_layout.addWidget(self._qtgui_freq_sink_x_0_win)
         self.gsm_message_file_sink_0 = grgsm.message_file_sink('/home/vib-dragon/adbsout2.txt')
-        self.blocks_complex_to_mag_squared_0 = blocks.complex_to_mag_squared(1)
+        self.blocks_message_debug_0 = blocks.message_debug()
+        self.blocks_complex_to_real_0 = blocks.complex_to_real(1)
         self.analog_const_source_x_0 = analog.sig_source_f(0, analog.GR_CONST_WAVE, 0, 0, 0)
         self.adsb_framer_0 = adsb.framer(2e6, 0.01)
         self.adsb_demod_0 = adsb.demod(2e6)
-        self.adsb_decoder_0 = adsb.decoder("All Messages", "Brute Force", "None")
+        self.adsb_decoder_0 = adsb.decoder("All Messages", "Conservative", "Verbose")
 
 
 
         ##################################################
         # Connections
         ##################################################
+        self.msg_connect((self.adsb_decoder_0, 'decoded'), (self.blocks_message_debug_0, 'store'))
+        self.msg_connect((self.adsb_decoder_0, 'decoded'), (self.blocks_message_debug_0, 'print'))
         self.msg_connect((self.adsb_decoder_0, 'decoded'), (self.gsm_message_file_sink_0, 'in'))
         self.msg_connect((self.adsb_decoder_0, 'decoded'), (self.zeromq_pub_msg_sink_0, 'in'))
         self.msg_connect((self.adsb_decoder_0, 'decoded'), (self.zeromq_pub_msg_sink_0_0, 'in'))
@@ -331,8 +334,8 @@ class vk(gr.top_block, Qt.QWidget):
         self.connect((self.adsb_framer_0, 0), (self.adsb_demod_0, 0))
         self.connect((self.adsb_framer_0, 0), (self.qtgui_time_sink_x_0_1, 0))
         self.connect((self.analog_const_source_x_0, 0), (self.qtgui_time_sink_x_0_0, 1))
-        self.connect((self.blocks_complex_to_mag_squared_0, 0), (self.adsb_framer_0, 0))
-        self.connect((self.rtlsdr_source_0, 0), (self.blocks_complex_to_mag_squared_0, 0))
+        self.connect((self.blocks_complex_to_real_0, 0), (self.adsb_framer_0, 0))
+        self.connect((self.rtlsdr_source_0, 0), (self.blocks_complex_to_real_0, 0))
         self.connect((self.rtlsdr_source_0, 0), (self.qtgui_freq_sink_x_0, 0))
         self.connect((self.rtlsdr_source_0, 0), (self.qtgui_time_sink_x_0, 0))
         self.connect((self.rtlsdr_source_0, 0), (self.qtgui_waterfall_sink_x_0, 0))
